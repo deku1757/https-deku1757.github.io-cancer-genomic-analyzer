@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card welcome-card">
+    <div class="welcome-content">
+        <div class="assistant-mascot">🧑‍⚕️</div>
+        <h1>Welcome to Cancer Genomics Analyzer</h1>
+        <p style="font-size: 18px; color: #a88cf5;">Powered by your AI Assistant</p>
+        <p>Analyze genetic mutations, assess cancer risk, and understand your genomic data with cutting-edge AI analysis.</p>
+        <a href="/analyze" style="display: inline-block; margin-top: 20px; padding: 12px 30px; background: linear-gradient(135deg, #cbbdff 0%, #b7a6ff 100%); color: white; border-radius: 25px; text-decoration: none; font-weight: bold;">Start Analysis</a>
+    </div>
+</div>
+
+<div class="card">
+    <h2>What is the Assistant?</h2>
+    <p>Your Assistant is an intelligent companion for genomic analysis. With AI support and scientific context, it helps you:</p>
+    <div class="features-grid">
+        <div class="feature">
+            <div class="feature-icon">🧬</div>
+            <h3>Genetic Analysis</h3>
+            <p>Understand mutations and their implications</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🔬</div>
+            <h3>Risk Assessment</h3>
+            <p>Evaluate cancer risk from genetic data</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">📊</div>
+            <h3>Data Visualization</h3>
+            <p>Beautiful charts and insights</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🧑‍⚕️</div>
+            <h3>Smart Assistance</h3>
+            <p>Chat with Assistant for instant help</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Quick Start Guide</h2>
+    <div class="steps">
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>Prepare Your Data</h3>
+                <p>Have your VCF (Variant Call Format) file ready or paste genetic data</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>Upload or Paste</h3>
+                <p>Go to ANALYZE section and upload your VCF file or paste the data</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>Configure Analysis</h3>
+                <p>Select analysis options and parameters for your specific needs</p>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+                <h3>Review Results</h3>
+                <p>Get comprehensive analysis, risk assessment, and AI insights</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Key Genes We Analyze</h2>
+    <div class="genes-grid">
+        <div class="gene-card">
+            <h3>BRCA1</h3>
+            <p><strong>Risk Level: 92%</strong></p>
+            <p>Tumor suppressor gene. Mutations significantly increase breast and ovarian cancer risk.</p>
+        </div>
+        <div class="gene-card">
+            <h3>BRCA2</h3>
+            <p><strong>Risk Level: 87%</strong></p>
+            <p>Similar to BRCA1, mutations increase breast, ovarian, and pancreatic cancer risk.</p>
+        </div>
+        <div class="gene-card">
+            <h3>TP53</h3>
+            <p><strong>Risk Level: 89%</strong></p>
+            <p>Guardian of the genome. Mutations can lead to multiple cancer types.</p>
+        </div>
+        <div class="gene-card">
+            <h3>PTEN</h3>
+            <p><strong>Risk Level: 85%</strong></p>
+            <p>Tumor suppressor gene associated with breast and other cancers.</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Meet Your AI Assistant</h2>
+    <p>Your Assistant is available 24/7 to help with genomic analysis and general guidance. You can ask about:</p>
+    <ul>
+        <li>🧬 VCF data format and interpretation</li>
+        <li>🔬 Cancer risk factors and genetics</li>
+        <li>📊 Specific genes and mutations</li>
+        <li>❓ How to use the analyzer</li>
+        <li>📈 Understanding your results</li>
+    </ul>
+    <p style="margin-top: 20px; padding: 15px; background: rgba(183, 166, 255, 0.12); border-left: 4px solid #b7a6ff; border-radius: 8px;">
+        💡 <strong>Tip:</strong> Look for the Assistant model at the bottom right after login. Click it anytime to chat!
+    </p>
+</div>
+
+<style>
+    .welcome-card {
+        text-align: center;
+        padding: 60px 40px;
+        background: linear-gradient(135deg, rgba(203, 189, 255, 0.16) 0%, rgba(183, 166, 255, 0.14) 100%);
+        border: 1px solid rgba(183, 166, 255, 0.4);
+    }
+
+    .welcome-content h1 {
+        margin-bottom: 10px;
+        font-size: 40px;
+    }
+
+    .assistant-mascot {
+        font-size: 80px;
+        margin-bottom: 20px;
+        animation: assistantBounce 2s ease-in-out infinite;
+    }
+
+    @keyframes assistantBounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .feature {
+        background: rgba(183, 166, 255, 0.09);
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        border: 1px solid rgba(183, 166, 255, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .feature:hover {
+        background: rgba(183, 166, 255, 0.14);
+        border-color: rgba(183, 166, 255, 0.45);
+        transform: translateY(-5px);
+    }
+
+    .feature-icon {
+        font-size: 40px;
+        margin-bottom: 10px;
+    }
+
+    .feature h3 {
+        color: #9b84f2;
+        margin: 10px 0;
+    }
+
+    .steps {
+        margin-top: 20px;
+    }
+
+    .step {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: rgba(183, 166, 255, 0.09);
+        border-radius: 10px;
+        border-left: 4px solid #b7a6ff;
+    }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #cbbdff 0%, #b7a6ff 100%);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    .step-content h3 {
+        color: #9b84f2;
+        margin-top: 0;
+    }
+
+    .genes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .gene-card {
+        background: rgba(183, 166, 255, 0.1);
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid rgba(183, 166, 255, 0.28);
+    }
+
+    .gene-card h3 {
+        color: #9b84f2;
+        margin: 0 0 10px 0;
+    }
+
+    .gene-card p {
+        margin: 8px 0;
+        font-size: 14px;
+    }
+
+    .info-card {
+        background: rgba(183, 166, 255, 0.08);
+        border: 1px solid rgba(183, 166, 255, 0.3);
+    }
+
+    .info-card h2 {
+        border-left-color: #b7a6ff;
+    }
+
+    .info-card ul {
+        margin: 15px 0;
+    }
+
+    .info-card li {
+        margin: 10px 0;
+    }
+</style>
+
+{% endblock %}

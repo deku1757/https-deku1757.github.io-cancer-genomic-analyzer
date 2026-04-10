@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancer Genomics Analyzer</title>
+    <style>
+        :root {
+            --bg: #eef4ff;
+            --card: #ffffff;
+            --text: #111827;
+            --muted: #4b5563;
+            --primary: #7c5cff;
+            --primary-dark: #6448d9;
+            --border: #dbe4ff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text);
+            background: linear-gradient(160deg, #eaf2ff 0%, #f6f9ff 55%, #edf4ff 100%);
+            min-height: 100vh;
+        }
+
+        .wrap {
+            width: min(1000px, 92%);
+            margin: 40px auto;
+        }
+
+        .hero, .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(33, 73, 160, 0.08);
+        }
+
+        .hero {
+            padding: 48px 28px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: clamp(28px, 4vw, 44px);
+        }
+
+        p {
+            margin: 10px 0;
+            line-height: 1.65;
+            color: var(--muted);
+        }
+
+        .btns {
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 999px;
+            font-weight: 700;
+            transition: transform 0.15s ease, background 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            border: 1px solid var(--border);
+            color: var(--text);
+            background: #fff;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+        }
+
+        .card {
+            padding: 20px;
+        }
+
+        h2 {
+            margin: 0 0 10px 0;
+            font-size: 20px;
+        }
+
+        ul {
+            margin: 0;
+            padding-left: 18px;
+            color: var(--muted);
+        }
+
+        .note {
+            margin-top: 24px;
+            padding: 16px;
+            border-left: 4px solid var(--primary);
+            background: #f5f2ff;
+            border-radius: 10px;
+            color: #3f3f46;
+        }
+    </style>
+</head>
+<body>
+    <main class="wrap">
+        <section class="hero">
+            <h1>Cancer Genomics Analyzer</h1>
+            <p>
+                A web application for analyzing VCF genomic data, estimating cancer-associated risk,
+                and presenting key mutation insights.
+            </p>
+            <div class="btns">
+                <a class="btn btn-primary" href="https://github.com/" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+                <a class="btn btn-secondary" href="./README.md">Read Documentation</a>
+            </div>
+        </section>
+
+        <section class="grid">
+            <article class="card">
+                <h2>What It Does</h2>
+                <ul>
+                    <li>Parses VCF variant data</li>
+                    <li>Highlights high-impact genes</li>
+                    <li>Provides risk-oriented summaries</li>
+                </ul>
+            </article>
+
+            <article class="card">
+                <h2>Tech Stack</h2>
+                <ul>
+                    <li>Python + Flask backend</li>
+                    <li>HTML/CSS frontend templates</li>
+                    <li>JSON APIs for analysis results</li>
+                </ul>
+            </article>
+
+            <article class="card">
+                <h2>Important Note</h2>
+                <ul>
+                    <li>This GitHub Pages site is static</li>
+                    <li>Live analysis requires running the Flask app locally or on a server</li>
+                </ul>
+            </article>
+        </section>
+
+        <div class="note">
+            For full functionality, run <code>python app.py</code> and open <code>http://127.0.0.1:5000</code>.
+            This page is a project landing page for GitHub hosting.
+        </div>
+    </main>
+</body>
+</html>

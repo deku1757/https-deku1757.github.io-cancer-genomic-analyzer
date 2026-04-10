@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .register-wrap {
+        min-height: 72vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px 12px;
+    }
+
+    .register-card {
+        width: 100%;
+        max-width: 480px;
+        margin: 0 auto;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(250, 245, 255, 0.32));
+        border: 1px solid rgba(183, 166, 255, 0.4);
+        border-radius: 16px;
+        box-shadow: 0 16px 36px rgba(29, 105, 155, 0.16);
+        padding: 32px 28px;
+    }
+
+    .register-head {
+        text-align: center;
+        margin-bottom: 26px;
+    }
+
+    .register-head h1 {
+        margin: 0 0 8px 0;
+        color: #111111;
+        font-size: 30px;
+    }
+
+    .register-head p {
+        margin: 0;
+        color: #111111;
+    }
+
+    .field-group {
+        margin-bottom: 18px;
+    }
+
+    .field-group label {
+        display: block;
+        margin-bottom: 7px;
+        color: #111111;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .field-group input {
+        width: 100%;
+        padding: 12px 14px;
+        background: rgba(255, 255, 255, 0.36);
+        border: 1px solid rgba(183, 166, 255, 0.4);
+        border-radius: 10px;
+        color: #111111;
+        font-size: 14px;
+        box-sizing: border-box;
+        transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+    .field-group input:focus {
+        outline: none;
+        border-color: #b7a6ff;
+        box-shadow: 0 0 0 4px rgba(183, 166, 255, 0.2);
+        background: rgba(255, 255, 255, 0.46);
+    }
+
+    .register-btn {
+        width: 100%;
+        padding: 13px;
+        font-size: 15px;
+        font-weight: 700;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #cbbdff, #b7a6ff);
+        cursor: pointer;
+        transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+        margin-top: 8px;
+    }
+
+    .register-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 24px rgba(14, 165, 233, 0.35);
+        filter: brightness(1.04);
+    }
+
+    .register-foot {
+        text-align: center;
+        color: #111111;
+        margin-top: 18px;
+        font-size: 14px;
+    }
+
+    .register-foot a {
+        color: #7a57e0;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .register-foot a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="register-wrap">
+    <div class="register-card">
+        <div class="register-head">
+            <h1>Create Account</h1>
+            <p>Join Cancer Genomics Analyzer</p>
+        </div>
+
+        {% if error %}
+            <div class="error-box" style="margin-bottom: 20px;">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        {% if success %}
+            <div class="success-box" style="margin-bottom: 20px;">
+                {{ success }}
+            </div>
+            <script>
+                setTimeout(function() {
+                    window.location.href = '/login';
+                }, 2000);
+            </script>
+        {% endif %}
+
+        {% if not success %}
+            <form method="POST" id="registerForm" novalidate>
+            <div class="field-group">
+                <label for="registerEmail">Email</label>
+                <input id="registerEmail" type="email" name="email" required />
+            </div>
+
+            <div class="field-group">
+                <label for="registerUsername">Username</label>
+                <input id="registerUsername" type="text" name="username" required />
+            </div>
+
+            <div class="field-group">
+                <label for="registerPassword">Password</label>
+                <input id="registerPassword" type="password" name="password" required minlength="6" />
+            </div>
+
+            <div class="field-group">
+                <label for="registerConfirmPassword">Confirm Password</label>
+                <input id="registerConfirmPassword" type="password" name="confirm_password" required minlength="6" />
+            </div>
+
+            <button type="submit" class="register-btn">
+                Create Account
+            </button>
+        </form>
+
+        {% endif %}
+
+        <div class="register-foot">
+            <p style="margin: 0;">Already have an account?
+                <a href="/login">Sign in</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const registerForm = document.getElementById('registerForm');
+
+    if (registerForm) {
+        registerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const email = document.querySelector('input[name="email"]').value.trim();
+            const username = document.querySelector('input[name="username"]').value.trim();
+            const password = document.querySelector('input[name="password"]').value;
+            const confirmPassword = document.querySelector('input[name="confirm_password"]').value;
+
+            if (!email || !username || !password || !confirmPassword) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+
+            this.submit();
+        });
+    }
+</script>
+
+{% endblock %}

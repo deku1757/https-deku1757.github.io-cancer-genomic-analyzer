@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancer Genomics Analyzer</title>
+    <style>
+        :root {
+            --bg-start: #dbe8f6;
+            --bg-mid: #e8f0fb;
+            --bg-end: #dce9f7;
+            --text-main: #111111;
+            --text-muted: #2a2a2a;
+            --primary: #8f6df5;
+            --primary-dark: #7a57e0;
+            --accent: #b79cff;
+            --card-bg: rgba(255, 255, 255, 0.2);
+            --card-border: rgba(143, 109, 245, 0.45);
+            --shadow-soft: 0 14px 30px rgba(29, 105, 155, 0.14);
+        }
+
+        /* 1. Full Screen Background & Global Setup */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100%;
+            background-color: var(--bg-start);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        body {
+            position: relative;
+        }
+
+        /* Fixed Background */
+        .dna-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #c7d9ee;
+            z-index: -3;
+        }
+
+        .dna-bg::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-mid) 50%, var(--bg-end) 100%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Soft Tint Overlay */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(70, 90, 120, 0.18);
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        /* 2. Smoky Floating Dots (Particles) */
+        .particles {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        /* Global doodle decorations */
+        .global-doodles {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .global-doodle {
+            position: absolute;
+            opacity: 0.4;
+        }
+
+        .global-doodle.plus {
+            width: 24px;
+            height: 24px;
+            top: 110px;
+            right: 80px;
+        }
+
+        .global-doodle.plus::before,
+        .global-doodle.plus::after {
+            content: "";
+            position: absolute;
+            background: #c7b9ff;
+            border-radius: 2px;
+        }
+
+        .global-doodle.plus::before {
+            width: 24px;
+            height: 3px;
+            top: 10px;
+            left: 0;
+        }
+
+        .global-doodle.plus::after {
+            width: 3px;
+            height: 24px;
+            top: 0;
+            left: 10px;
+        }
+
+        .global-doodle.ring {
+            width: 80px;
+            height: 80px;
+            border: 2px dashed rgba(34, 211, 238, 0.65);
+            border-radius: 50%;
+            top: 280px;
+            left: 28px;
+        }
+
+        .global-doodle.pill {
+            width: 120px;
+            height: 42px;
+            border: 2px solid rgba(45, 212, 191, 0.55);
+            border-radius: 999px;
+            transform: rotate(-18deg);
+            bottom: 140px;
+            right: 24px;
+        }
+
+        .global-doodle.dots {
+            width: 72px;
+            height: 72px;
+            bottom: 190px;
+            left: 42px;
+            background-image: radial-gradient(rgba(103, 232, 249, 0.75) 2px, transparent 2px);
+            background-size: 12px 12px;
+        }
+
+        .global-doodle.plus-bottom {
+            width: 24px;
+            height: 24px;
+            bottom: 90px;
+            left: 18%;
+        }
+
+        .global-doodle.plus-bottom::before,
+        .global-doodle.plus-bottom::after {
+            content: "";
+            position: absolute;
+            background: #c7b9ff;
+            border-radius: 2px;
+        }
+
+        .global-doodle.plus-bottom::before {
+            width: 24px;
+            height: 3px;
+            top: 10px;
+            left: 0;
+        }
+
+        .global-doodle.plus-bottom::after {
+            width: 3px;
+            height: 24px;
+            top: 0;
+            left: 10px;
+        }
+
+        .global-doodle.ring-bottom {
+            width: 92px;
+            height: 92px;
+            border: 2px dashed rgba(34, 211, 238, 0.55);
+            border-radius: 50%;
+            bottom: 70px;
+            right: 14%;
+        }
+
+        .doctor-doodle {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            width: 150px;
+            height: 185px;
+            border-radius: 16px;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            pointer-events: auto;
+            cursor: pointer;
+            opacity: 0.95;
+            overflow: visible;
+            transform: translate3d(0, 0, 0);
+            transition: transform 120ms ease-out;
+            will-change: transform;
+            perspective: 900px;
+        }
+
+        .doctor-model3d {
+            position: relative;
+            width: 100%;
+            height: calc(100% - 26px);
+            border-radius: 14px;
+            background: transparent;
+            transform-style: preserve-3d;
+            transform: rotateX(0deg) rotateY(0deg);
+            transition: transform 140ms ease-out;
+            will-change: transform;
+        }
+
+        .doctor-name {
+            position: absolute;
+            left: 27px;
+            bottom: 6px;
+            transform: none;
+            color: #b7a6ff;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-align: left;
+            text-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .doctor-hi {
+            position: absolute;
+            right: 6px;
+            top: -10px;
+            background: rgba(15, 23, 42, 0.9);
+            color: #e0f2fe;
+            border: 1px solid rgba(103, 232, 249, 0.45);
+            border-radius: 999px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            opacity: 0;
+            transform: translateY(6px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            pointer-events: none;
+        }
+
+        .doctor-doodle:hover .doctor-hi {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .doctor-bg-blob {
+            position: absolute;
+            border-radius: 999px;
+            transform: translateZ(8px);
+            opacity: 0.95;
+        }
+
+        .doctor-bg-blob.one {
+            width: 68px;
+            height: 52px;
+            background: #c7d9ff;
+            left: 21px;
+            top: 34px;
+        }
+
+        .doctor-bg-blob.two {
+            width: 15px;
+            height: 15px;
+            background: #d4c9ff;
+            left: 10px;
+            top: 28px;
+        }
+
+        .doctor-bg-blob.three {
+            display: none;
+        }
+
+        .doctor-torso {
+            position: absolute;
+            left: 28px;
+            top: 68px;
+            width: 54px;
+            height: 62px;
+            border-radius: 16px 16px 14px 14px;
+            background: #eef4ff;
+            transform: translateZ(20px);
+        }
+
+        .doctor-neck {
+            position: absolute;
+            left: 50px;
+            top: 60px;
+            width: 10px;
+            height: 12px;
+            background: #ff907e;
+            border-radius: 4px;
+            transform: translateZ(26px);
+        }
+
+        .doctor-head {
+            position: absolute;
+            left: 43px;
+            top: 42px;
+            width: 24px;
+            height: 24px;
+            background: #ff907e;
+            border-radius: 50%;
+            transform: translateZ(34px);
+        }
+
+        .doctor-hair {
+            position: absolute;
+            left: 36px;
+            top: 34px;
+            width: 38px;
+            height: 34px;
+            background: #202b86;
+            border-radius: 20px 20px 14px 14px;
+            transform: translateZ(30px);
+        }
+
+        .doctor-clipboard {
+            position: absolute;
+            left: 41px;
+            top: 79px;
+            width: 28px;
+            height: 24px;
+            border-radius: 3px;
+            background: #ffffff;
+            transform: rotate(-10deg) translateZ(36px);
+            box-shadow: 0 1px 0 rgba(148, 163, 184, 0.6);
+        }
+
+        .doctor-clipboard::before,
+        .doctor-clipboard::after {
+            content: "";
+            position: absolute;
+            left: 4px;
+            right: 4px;
+            height: 1.5px;
+            background: #94a3b8;
+        }
+
+        .doctor-clipboard::before { top: 8px; }
+        .doctor-clipboard::after { top: 12px; }
+
+        .doctor-stetho {
+            position: absolute;
+            left: 30px;
+            top: 78px;
+            width: 50px;
+            height: 22px;
+            border: 2px solid #34425e;
+            border-top: none;
+            border-radius: 0 0 18px 18px;
+            transform: translateZ(28px);
+            opacity: 0.9;
+        }
+
+        .doctor-floor {
+            position: absolute;
+            left: 24px;
+            bottom: 7px;
+            width: 62px;
+            height: 3px;
+            border-radius: 2px;
+            background: #2d3c8f;
+            transform: translateZ(10px);
+            opacity: 0.8;
+        }
+
+        /* Center rotating DNA helix */
+        .dna-helix-scene {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 290px;
+            height: 100vh;
+            perspective: 1000px;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.55;
+            filter: drop-shadow(0 0 20px rgba(34, 211, 238, 0.3));
+        }
+
+        .dna-helix {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            animation: helixSpin 10s linear infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dna-pair {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 150px;
+            height: 10px;
+            transform-style: preserve-3d;
+            transform:
+                translate(-50%, -50%)
+                translateY(calc((var(--i) - 10) * 19px))
+                rotateY(calc(var(--i) * 22deg));
+        }
+
+        .dna-pair::before,
+        .dna-pair::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 0 14px rgba(34, 211, 238, 0.5);
+        }
+
+        .dna-pair::before {
+            left: 0;
+            background: radial-gradient(circle at 30% 30%, #d9ceff 0%, #b7a6ff 70%);
+        }
+
+        .dna-pair::after {
+            right: 0;
+            background: radial-gradient(circle at 30% 30%, #2dd4bf 0%, #0ea5a4 70%);
+        }
+
+        .dna-bond {
+            position: absolute;
+            left: 14px;
+            right: 14px;
+            top: 50%;
+            height: 2px;
+            transform: translateY(-50%);
+            background: linear-gradient(90deg, rgba(103, 232, 249, 0.8), rgba(45, 212, 191, 0.8));
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.35);
+        }
+
+        .dna-edge {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 30px;
+            transform: translateY(-50%);
+        }
+
+        .dna-edge::before,
+        .dna-edge::after {
+            content: "";
+            position: absolute;
+            width: 3px;
+            height: 30px;
+            top: 0;
+            background: linear-gradient(180deg, rgba(103, 232, 249, 0.7), rgba(45, 212, 191, 0.7));
+            box-shadow: 0 0 8px rgba(34, 211, 238, 0.3);
+        }
+
+        .dna-edge::before {
+            left: 6px;
+        }
+
+        .dna-edge::after {
+            right: 6px;
+        }
+
+        @keyframes helixSpin {
+            from { transform: rotateY(0deg) rotateX(8deg); }
+            to   { transform: rotateY(360deg) rotateX(8deg); }
+        }
+
+        .dot {
+            position: absolute;
+            background: radial-gradient(circle, rgba(0,212,255,0.8) 0%, rgba(0,150,200,0.4) 40%, rgba(0,212,255,0) 70%);
+            border-radius: 50%;
+            filter: blur(50px);
+            animation: float 25s infinite linear;
+            opacity: 0.6;
+            box-shadow: 0 0 80px rgba(0,212,255,0.6);
+        }
+
+        .mist {
+            position: absolute;
+            background: radial-gradient(ellipse at center, rgba(0,180,220,0.5) 0%, rgba(0,100,150,0.2) 50%, transparent 80%);
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: drift 30s infinite ease-in-out;
+            opacity: 0.7;
+            box-shadow: 0 0 120px rgba(0,200,255,0.4);
+        }
+
+        .mist-slow { animation: drift-slow 45s infinite ease-in-out; opacity: 0.6; }
+        .mist-fast { animation: drift-fast 20s infinite ease-in-out; opacity: 0.7; }
+
+        @keyframes float {
+            0%   { transform: translateY(100vh) scale(0.8); opacity: 0; }
+            10%  { opacity: 0.7; }
+            50%  { opacity: 0.8; transform: translateY(50vh) scale(1); }
+            90%  { opacity: 0.5; }
+            100% { transform: translateY(-100vh) scale(1.2); opacity: 0; }
+        }
+
+        @keyframes drift {
+            0%   { transform: translateX(-100px) scale(0.9); opacity: 0; }
+            20%  { opacity: 0.6; }
+            50%  { opacity: 0.8; transform: translateX(50px) scale(1.1); }
+            80%  { opacity: 0.4; }
+            100% { transform: translateX(100px) scale(1.3); opacity: 0; }
+        }
+
+        @keyframes drift-slow {
+            0%   { transform: translateX(-150px) scale(0.8); opacity: 0; }
+            50%  { opacity: 0.7; transform: translateX(75px) scale(1.2); }
+            100% { transform: translateX(150px) scale(1.4); opacity: 0; }
+        }
+
+        @keyframes drift-fast {
+            0%   { transform: translateX(-80px) scale(0.7); opacity: 0; }
+            50%  { opacity: 0.8; transform: translateX(40px) scale(1); }
+            100% { transform: translateX(80px) scale(1.1); opacity: 0; }
+        }
+
+        /* 3. Navigation */
+        nav {
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 60px;
+            border-bottom: 1px solid rgba(143, 109, 245, 0.45);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-soft);
+        }
+
+        nav a {
+            color: #111111;
+            text-decoration: none;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: rgba(143, 109, 245, 0.18);
+            border: 1px solid rgba(143, 109, 245, 0.35);
+        }
+
+        nav a:hover {
+            color: #111111;
+            background: rgba(143, 109, 245, 0.3);
+            text-shadow: none;
+            transform: scale(1.05);
+        }
+
+        /* FIX: nav span was using margin-left:auto which broke centered layout */
+        nav .nav-user {
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 14px;
+            padding: 8px 16px;
+        }
+
+        /* 4. Container & Cards */
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 24px rgba(38, 58, 88, 0.16);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(29, 155, 240, 0.45);
+            box-shadow: 0 20px 50px rgba(29, 155, 240, 0.12);
+        }
+
+        /* 5. Typography */
+        h1 {
+            color: #111111;
+            margin: 0 0 15px 0;
+            font-size: 32px;
+            text-shadow: none;
+        }
+
+        h2 {
+            color: #111111;
+            margin: 20px 0 15px 0;
+            font-size: 20px;
+            border-left: 4px solid #33b8c7;
+            padding-left: 15px;
+        }
+
+        p { color: var(--text-main); line-height: 1.6; margin: 10px 0; }
+
+        /* 6. Form Elements */
+        textarea {
+            width: 100%;
+            height: 180px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1.5px solid rgba(0, 212, 255, 0.4);
+            border-radius: 10px;
+            color: #b7a6ff;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            font-size: 14px;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #b7a6ff;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        input[type="file"] {
+            color: #111111;
+            margin-bottom: 15px;
+        }
+
+        input[type="file"]::file-selector-button {
+            background: #b7a6ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            margin-right: 10px;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background: #0077aa;
+        }
+
+        /* 7. Buttons */
+        button {
+            background: linear-gradient(135deg, #cbbdff 0%, #b7a6ff 100%);
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.2);
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #0077aa 0%, #005588 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 212, 255, 0.3);
+        }
+
+        button:active { transform: translateY(-1px); }
+
+        /* 8. Tables */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+
+        th {
+            color: #b7a6ff;
+            background: rgba(0, 212, 255, 0.1);
+            padding: 15px;
+            text-align: left;
+            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+            font-weight: bold;
+        }
+
+        td {
+            color: #111111;
+            text-align: left;
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        tr:hover { background: rgba(0, 212, 255, 0.05); }
+
+        /* 9. Result Boxes */
+        .result-box {
+            background: rgba(29, 155, 240, 0.1);
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            color: var(--text-main);
+        }
+
+        .error-box {
+            background: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            color: #fca5a5;
+        }
+
+        .success-box {
+            background: rgba(0, 212, 255, 0.15);
+            border-left: 4px solid #b7a6ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            color: #127cbf;
+        }
+
+        /* 10. Lists */
+        ul, ol {
+            color: #111111;
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        li {
+            color: #111111;
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        /* 11. Links */
+        a {
+            color: #b7a6ff;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        a:hover {
+            color: #9b84f2;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        /* 12. Loading Spinner */
+        .spinner {
+            border: 3px solid rgba(0, 212, 255, 0.2);
+            border-top: 3px solid #b7a6ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0%   { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 13. Responsive */
+        @media (max-width: 768px) {
+            nav { gap: 15px; padding: 10px 15px; flex-wrap: wrap; }
+            .container { margin: 20px auto; }
+            .card { padding: 25px; }
+            h1 { font-size: 24px; }
+            textarea { height: 120px; }
+            .global-doodle { opacity: 0.25; transform: scale(0.85); }
+            .dna-helix-scene { opacity: 0.32; transform: translateX(-50%) scale(0.8); }
+            .doctor-doodle { width: 114px; height: 142px; right: 12px; bottom: 12px; }
+            .doctor-name { font-size: 11px; }
+        }
+
+        /* 14. Chatbot Styles */
+        .chatbot {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 380px;
+            height: 550px;
+            background: rgba(255, 255, 255, 0.22);
+            border: 1px solid rgba(183, 166, 255, 0.42);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(10px);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+
+        .chatbot-header {
+            background: linear-gradient(135deg, #cbbdff 0%, #b7a6ff 100%);
+            color: #111111;
+            padding: 15px 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .chatbot-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chatbot-doctor-wrap {
+            width: 30px;
+            height: 36px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        @keyframes dinoBounce {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-5px); }
+        }
+
+        /* FIX: chatbot-minimize button was inheriting global button styles (large padding, rounded) */
+        .chatbot-minimize {
+            background: rgba(255,255,255,0.2) !important;
+            border: none !important;
+            color: #111111 !important;
+            width: 30px !important;
+            height: 30px !important;
+            border-radius: 50% !important;
+            cursor: pointer;
+            font-size: 20px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: all 0.3s ease;
+            padding: 0 !important;
+            box-shadow: none !important;
+            line-height: 1;
+            min-width: unset !important;
+            font-weight: normal !important;
+            letter-spacing: 0 !important;
+        }
+
+        .chatbot-minimize:hover {
+            background: rgba(255,255,255,0.3) !important;
+            transform: scale(1.1) !important;
+            box-shadow: none !important;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .messages::-webkit-scrollbar { width: 6px; }
+        .messages::-webkit-scrollbar-track { background: rgba(0,212,255,0.1); border-radius: 10px; }
+        .messages::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.3); border-radius: 10px; }
+        .messages::-webkit-scrollbar-thumb:hover { background: rgba(0,212,255,0.5); }
+
+        .message {
+            display: flex;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .bot-message  { justify-content: flex-start; }
+        .user-message { justify-content: flex-end; }
+
+        .message-content {
+            max-width: 80%;
+            padding: 12px 15px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            white-space: pre-wrap; /* FIX: preserves \n line breaks in bot responses */
+        }
+
+        .bot-message .message-content {
+            background: rgba(29, 155, 240, 0.1);
+            border: 1px solid rgba(29, 155, 240, 0.25);
+            color: #111111;
+        }
+
+        .user-message .message-content {
+            background: linear-gradient(135deg, #cbbdff 0%, #b7a6ff 100%);
+            color: #111111;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            padding: 12px;
+            border-top: 1px solid rgba(0,212,255,0.2);
+        }
+
+        /* FIX: chat-input was being overridden by global textarea styles */
+        .chat-input {
+            flex: 1;
+            background: rgba(248, 251, 255, 0.95);
+            border: 1px solid rgba(129, 180, 230, 0.45);
+            border-radius: 8px;
+            color: #111111;
+            padding: 10px 12px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: auto;
+            resize: none;
+            width: auto;
+            margin-bottom: 0;
+            box-sizing: border-box;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(29, 155, 240, 0.18);
+            background: #ffffff;
+        }
+
+        .chat-input::placeholder { color: #444444; }
+
+        /* FIX: send-btn was inheriting global button large padding */
+        .send-btn {
+            background: linear-gradient(135deg, #cbbdff 0%, #b7a6ff 100%) !important;
+            border: none !important;
+            color: #111111 !important;
+            width: 40px !important;
+            height: 40px !important;
+            border-radius: 8px !important;
+            cursor: pointer;
+            font-size: 18px !important;
+            transition: all 0.3s ease;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 0 !important;
+            font-weight: bold;
+            box-shadow: none !important;
+            min-width: unset !important;
+            letter-spacing: 0 !important;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 5px 15px rgba(0,212,100,0.4) !important;
+        }
+
+        .doctor-model-mini {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+        }
+
+        .doctor-model-mini .doctor-bg-blob.one { width: 26px; height: 20px; left: 8px; top: 12px; }
+        .doctor-model-mini .doctor-bg-blob.two { width: 8px; height: 8px; left: 2px; top: 11px; }
+        .doctor-model-mini .doctor-bg-blob.three { display: none; }
+        .doctor-model-mini .doctor-hair { left: 10px; top: 11px; width: 14px; height: 13px; border-radius: 8px 8px 6px 6px; }
+        .doctor-model-mini .doctor-head { left: 13px; top: 14px; width: 9px; height: 9px; }
+        .doctor-model-mini .doctor-neck { left: 16px; top: 22px; width: 3px; height: 5px; }
+        .doctor-model-mini .doctor-torso { left: 7px; top: 24px; width: 20px; height: 24px; border-radius: 8px 8px 6px 6px; }
+        .doctor-model-mini .doctor-stetho { left: 8px; top: 28px; width: 18px; height: 8px; border-width: 1px; }
+        .doctor-model-mini .doctor-clipboard { left: 12px; top: 30px; width: 11px; height: 9px; border-radius: 2px; }
+        .doctor-model-mini .doctor-clipboard::before,
+        .doctor-model-mini .doctor-clipboard::after { left: 2px; right: 2px; height: 1px; }
+        .doctor-model-mini .doctor-clipboard::before { top: 3px; }
+        .doctor-model-mini .doctor-clipboard::after { top: 5px; }
+        .doctor-model-mini .doctor-floor { left: 8px; bottom: 1px; width: 20px; height: 2px; }
+
+        @media (max-width: 768px) {
+            .chatbot { width: 90vw; height: 70vh; max-width: 400px; right: 5vw; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background -->
+    <div class="dna-bg"></div>
+    <div class="overlay"></div>
+
+    <!-- Particles -->
+    <div class="particles">
+        <div class="dot" style="width:150px;height:150px;left:5%;top:-100px;animation-delay:0s;"></div>
+        <div class="dot" style="width:200px;height:200px;left:20%;top:-150px;animation-delay:3s;"></div>
+        <div class="dot" style="width:180px;height:180px;left:40%;top:-120px;animation-delay:6s;"></div>
+        <div class="dot" style="width:220px;height:220px;left:60%;top:-180px;animation-delay:2s;"></div>
+        <div class="dot" style="width:160px;height:160px;left:80%;top:-140px;animation-delay:5s;"></div>
+        <div class="dot" style="width:190px;height:190px;left:15%;top:-160px;animation-delay:8s;"></div>
+        <div class="dot" style="width:210px;height:210px;left:75%;top:-110px;animation-delay:4s;"></div>
+
+        <div class="mist" style="width:400px;height:300px;left:10%;top:100px;animation-delay:0s;"></div>
+        <div class="mist mist-slow" style="width:500px;height:350px;left:50%;top:200px;animation-delay:2s;"></div>
+        <div class="mist mist-fast" style="width:350px;height:280px;left:30%;top:400px;animation-delay:4s;"></div>
+        <div class="mist" style="width:450px;height:320px;left:65%;top:300px;animation-delay:6s;"></div>
+        <div class="mist mist-slow" style="width:380px;height:290px;left:5%;top:500px;animation-delay:3s;"></div>
+        <div class="mist mist-fast" style="width:420px;height:310px;left:70%;top:600px;animation-delay:5s;"></div>
+        <div class="mist" style="width:480px;height:360px;left:25%;top:200px;animation-delay:7s;"></div>
+    </div>
+
+    <!-- Global Doodles -->
+    <div class="global-doodles" aria-hidden="true">
+        <span class="global-doodle plus"></span>
+        <span class="global-doodle ring"></span>
+        <span class="global-doodle pill"></span>
+        <span class="global-doodle dots"></span>
+        <span class="global-doodle plus-bottom"></span>
+        <span class="global-doodle ring-bottom"></span>
+    </div>
+
+    <div class="doctor-doodle" aria-hidden="true">
+        <span class="doctor-hi">Hi ❤️</span>
+        <div class="doctor-model3d">
+            <div class="doctor-bg-blob one"></div>
+            <div class="doctor-bg-blob two"></div>
+            <div class="doctor-bg-blob three"></div>
+            <div class="doctor-hair"></div>
+            <div class="doctor-head"></div>
+            <div class="doctor-neck"></div>
+            <div class="doctor-torso"></div>
+            <div class="doctor-stetho"></div>
+            <div class="doctor-clipboard"></div>
+            <div class="doctor-floor"></div>
+        </div>
+        <span class="doctor-name">Assistant</span>
+    </div>
+
+    <div class="dna-helix-scene" aria-hidden="true">
+        <div class="dna-helix">
+            <div class="dna-pair" style="--i: 1;"><span class="dna-edge"></span><span class="dna-bond"></span></div>
+            <div class="dna-pair" style="--i: 2;"><span class="dna-edge"></span><span class="dna-bond"></span></div>
+            <div class="dna-pair" style="--i: 3;"><span class="dna-edge"></span><span class="dna-bond"></span></div>
+            <div class="dna-pair" style="--i: 4;"><span class="dna-edge"></span><span class="dna-bond"></span></div>
+            <div class="dna-pair" style="--i: 5;"><span class="dna-edge"></span><span class="dna-bond"></span></div>
+            <div class="dna-pair" style="--i: 6;"><span class="dna-edge"></span><span class="dna-bond"></span></div>
+            <div class="dna-pair" style="--i: 7;"><span class="dna-edge"></span><span class="dna-bond"></span></div>
+            <div class="dna-pair" style="--i: 8;"><span class="dna-edge"></span><span class="dna-bond"></span></div>
+            <div class="dna-pair" style="--i: 9;"><span class="dna-edge"></span><span class="dna-bond"></span></div>
+            <div class="dna-pair" style="--i: 10;"><span class="dna-edge"></span><span class="dna-bond"></span></div>
+            <div class="dna-pair" style="--i: 11;"><span class="dna-edge"></span><span class="dna-bond"></span></div>
+            <div class="dna-pair" style="--i: 12;"><span class="dna-edge"></span><span class="dna-bond"></span></div>
+            <div class="dna-pair" style="--i: 13;"><span class="dna-edge"></span><span class="dna-bond"></span></div>
+            <div class="dna-pair" style="--i: 14;"><span class="dna-edge"></span><span class="dna-bond"></span></div>
+            <div class="dna-pair" style="--i: 15;"><span class="dna-edge"></span><span class="dna-bond"></span></div>
+            <div class="dna-pair" style="--i: 16;"><span class="dna-edge"></span><span class="dna-bond"></span></div>
+            <div class="dna-pair" style="--i: 17;"><span class="dna-edge"></span><span class="dna-bond"></span></div>
+            <div class="dna-pair" style="--i: 18;"><span class="dna-edge"></span><span class="dna-bond"></span></div>
+            <div class="dna-pair" style="--i: 19;"><span class="dna-edge"></span><span class="dna-bond"></span></div>
+            <div class="dna-pair" style="--i: 20;"><span class="dna-edge"></span><span class="dna-bond"></span></div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <a href="/">HOME</a>
+        <a href="/analyze">ANALYZE</a>
+        {% if session.get('username') %}
+            <span class="nav-user">👤 {{ session.get('username') }}</span>
+            <a href="/logout">LOGOUT</a>
+        {% endif %}
+    </nav>
+
+    <!-- Page Content -->
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Chatbot (only shown when logged in) -->
+    {% if session.get('username') %}
+    <div id="chatbot" class="chatbot" style="display: none;">
+        <div class="chatbot-header">
+            <div class="chatbot-title">
+                <div class="chatbot-doctor-wrap">
+                    <div class="doctor-model-mini">
+                        <div class="doctor-bg-blob one"></div>
+                        <div class="doctor-bg-blob two"></div>
+                        <div class="doctor-bg-blob three"></div>
+                        <div class="doctor-hair"></div>
+                        <div class="doctor-head"></div>
+                        <div class="doctor-neck"></div>
+                        <div class="doctor-torso"></div>
+                        <div class="doctor-stetho"></div>
+                        <div class="doctor-clipboard"></div>
+                        <div class="doctor-floor"></div>
+                    </div>
+                </div>
+                <span>Assistant</span>
+            </div>
+            <button id="minimize-btn" class="chatbot-minimize" title="Minimize">−</button>
+        </div>
+        <div class="messages" id="messages">
+            <div class="message bot-message">
+                <div class="message-content">Hello! I'm your Assistant. I'm here to help you understand genetic mutations, cancer risk assessment, and VCF data analysis. What would you like to know?</div>
+            </div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="chat-input-field" class="chat-input" placeholder="Ask your assistant anything..." autocomplete="off" />
+            <button id="send-btn" class="send-btn" title="Send">📤</button>
+        </div>
+    </div>
+
+    {% endif %}
+
+    <script>
+        const doctorDoodle = document.querySelector('.doctor-doodle');
+        const doctorModel = doctorDoodle ? doctorDoodle.querySelector('.doctor-model3d') : null;
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (doctorDoodle && doctorModel && !reduceMotion) {
+            const handleMove = (event) => {
+                const nx = (event.clientX / window.innerWidth) * 2 - 1;
+                const ny = (event.clientY / window.innerHeight) * 2 - 1;
+
+                const translateX = nx * 8;
+                const translateY = ny * 6;
+                const rotate = nx * 6;
+                const rotateY = nx * 14;
+                const rotateX = -ny * 10;
+
+                doctorDoodle.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) rotate(${rotate}deg)`;
+                doctorModel.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            };
+
+            const resetMove = () => {
+                doctorDoodle.style.transform = 'translate3d(0, 0, 0) rotate(0deg)';
+                doctorModel.style.transform = 'rotateX(0deg) rotateY(0deg)';
+            };
+
+            window.addEventListener('mousemove', handleMove);
+            window.addEventListener('mouseleave', resetMove);
+        }
+
+        const chatInputField = document.getElementById('chat-input-field');
+        const sendBtn        = document.getElementById('send-btn');
+        const messages       = document.getElementById('messages');
+        const chatbot        = document.getElementById('chatbot');
+        const minimizeBtn    = document.getElementById('minimize-btn');
+
+        if (chatInputField && sendBtn && messages && chatbot && minimizeBtn) {
+            function addMessage(text, isUser = false) {
+                const wrap   = document.createElement('div');
+                wrap.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+                const bubble = document.createElement('div');
+                bubble.className   = 'message-content';
+                bubble.textContent = text;
+                wrap.appendChild(bubble);
+                messages.appendChild(wrap);
+                setTimeout(() => { messages.scrollTop = messages.scrollHeight; }, 0);
+            }
+
+            async function send() {
+                const text = chatInputField.value.trim();
+                if (!text) return;
+                addMessage(text, true);
+                chatInputField.value = '';
+                chatInputField.disabled = true;
+                sendBtn.disabled = true;
+
+                const match = window.location.pathname.match(/\/results\/([^/]+)/);
+                const analysisId = match ? match[1] : '';
+
+                try {
+                    const response = await fetch('/api/assistant', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            message: text,
+                            path: window.location.pathname,
+                            analysis_id: analysisId
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Assistant API unavailable');
+                    }
+
+                    const data = await response.json();
+                    addMessage(data.reply || 'I could not generate a response right now.');
+                } catch (error) {
+                    addMessage(
+                        "I could not reach the live assistant right now. Please try again in a moment."
+                    );
+                } finally {
+                    chatInputField.disabled = false;
+                    sendBtn.disabled = false;
+                    chatInputField.focus();
+                }
+            }
+
+            sendBtn.addEventListener('click', send);
+            chatInputField.addEventListener('keypress', e => {
+                if (e.key === 'Enter') send();
+            });
+
+            minimizeBtn.addEventListener('click', () => {
+                chatbot.style.display = 'none';
+            });
+
+            if (doctorDoodle) {
+                doctorDoodle.addEventListener('click', () => {
+                    chatbot.style.display = 'flex';
+                    chatInputField.focus();
+                });
+            }
+        } else if (doctorDoodle) {
+            doctorDoodle.style.pointerEvents = 'none';
+            doctorDoodle.style.cursor = 'default';
+        }
+    </script>
+
+</body>
+</html>
